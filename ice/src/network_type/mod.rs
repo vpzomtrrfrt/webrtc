@@ -128,7 +128,10 @@ impl NetworkType {
 
 /// Determines the type of network based on the short network string and an IP address.
 pub(crate) fn determine_network_type(network: &str, ip: &IpAddr) -> Result<NetworkType> {
-    let ipv4 = ip.is_ipv4();
+    let ipv4 = match ip {
+        std::net::IpAddr::V4(_) => true,
+        std::net::IpAddr::V6(ip) => ip.to_ipv4_mapped().is_some(),
+    };
     let net = network.to_lowercase();
     if net.starts_with(UDP) {
         if ipv4 {
